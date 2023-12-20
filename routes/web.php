@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use  \App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,12 +26,12 @@ Route::get('/', function () {
 
 Route::get('/setup', function () {
     $credentials = [
-        'email' => 'admin@admin.com',
-        'password' => 'password',
+        'email' => 'oussama@admin.com',
+        'password' => 'password12',
     ];
 
     if (!Auth::attempt($credentials)) {
-        $user = new User();
+        $user = new \App\Models\User();
 
         $user->name = 'Admin';
         $user->email = $credentials['email'];
@@ -40,20 +40,21 @@ Route::get('/setup', function () {
         $user->save();
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
+            $user2 = Auth::user();
             $tokenAbilities = ['create', 'update', 'delete'];
-
-            $adminToken = $user->createToken('admin-token', $tokenAbilities);
-            $updateToken = $user->createToken('update-token', $tokenAbilities);
-            $basicToken = $user->createToken('basic-token');
-
+            $adminToken = $user->createToken('admin-token', ['create', 'update', 'delete']);
+            $updateToken = $user->createToken('update-token', ['create', 'update',]);
+            $basicToken = $user->createToken('basic-token',["none"]);
             return [
                 'admin' => $adminToken->plainTextToken,
                 'update' => $updateToken->plainTextToken,
                 'basic' => $basicToken->plainTextToken,
             ];
-        }
+        } } else {
+            // If user authentication was successful, you might want to handle this case.
+            return response()->json([
+                'message' => 'User already exists.',
+            ]);
     }
 });
 
